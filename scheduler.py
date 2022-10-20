@@ -1,5 +1,8 @@
 from apscheduler.schedulers.blocking import BlockingScheduler
 from updates import UpdateRepos
+from app import app
+
+app.app_context()
 
 
 class Config:
