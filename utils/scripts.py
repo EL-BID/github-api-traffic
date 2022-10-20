@@ -29,7 +29,8 @@ def GetAccessToken(installation_id):
         "Authorization": "Bearer " + CreateJWT(),
         "Accept": "application/vnd.github+json"
     }
-    r = requests.post("https://api.github.com/app/installations/" + str(installation_id) + "/access_tokens", headers=headers)
+    r = requests.post("https://api.github.com/app/installations/" + str(installation_id) + "/access_tokens",
+                      headers=headers)
     return r.text
 
 
@@ -41,15 +42,21 @@ def GetRepos():
     return json.loads(r.text)
 
 
-def GetTraffic(token):
-    repos = GetRepos()
+def GetTraffic(token, repo):
     results = []
-    for repo in repos:
-        headers = {
-            "Authorization": "Bearer " + token,
-            "Accept": "application/vnd.github+json"
-        }
-        r = requests.get("https://api.github.com/repos/EL-BID/"+repo["name"]+"/traffic/clones", headers=headers)
-        results.append(json.loads(r.text))
 
+    headers = {
+        "Authorization": "Bearer " + token,
+        "Accept": "application/vnd.github+json"
+    }
+    r = requests.get("https://api.github.com/repos/EL-BID/" + repo["name"] + "/traffic/clones", headers=headers)
+    results.append(json.loads(r.text))
     return results
+
+
+def execute():
+    installation = GetInstallations()
+    access_token = GetAccessToken(installation)
+    token = json.loads(access_token)["token"]
+    return GetTraffic(token)
+
