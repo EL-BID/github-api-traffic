@@ -16,5 +16,5 @@ with app.app_context():
         out = UpdateRepos()
         print(out)
 
-
+    job1()
     scheduler.start()
