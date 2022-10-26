@@ -1,5 +1,5 @@
 from apscheduler.schedulers.blocking import BlockingScheduler
-from updates import UpdateRepos
+from updates import UpdateRepos, UpdateTraffic
 from app import app
 
 with app.app_context():
@@ -16,5 +16,8 @@ with app.app_context():
         out = UpdateRepos()
         print(out)
 
-    job1()
+    def job2():
+        out = UpdateTraffic()
+        print(out)
+
     scheduler.start()

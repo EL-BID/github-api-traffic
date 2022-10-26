@@ -24,7 +24,8 @@ def GetInstallations():
     return r.json()[0]["id"]
 
 
-def GetAccessToken(installation_id):
+def GetAccessToken():
+    installation_id = GetInstallations()
     headers = {
         "Authorization": "Bearer " + CreateJWT(),
         "Accept": "application/vnd.github+json"
@@ -49,7 +50,7 @@ def GetTraffic(token, repo):
         "Authorization": "Bearer " + token,
         "Accept": "application/vnd.github+json"
     }
-    r = requests.get("https://api.github.com/repos/EL-BID/" + repo["name"] + "/traffic/clones", headers=headers)
+    r = requests.get("https://api.github.com/repos/EL-BID/" + str(repo) + "/traffic/clones", headers=headers)
     results.append(json.loads(r.text))
     return results
 

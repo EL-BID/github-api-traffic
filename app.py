@@ -24,7 +24,7 @@ class Repos(db.Model):
 class Traffic(db.Model):
     __tablename__ = "traffic"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    repo_name = db.Column(db.String(80), db.ForeignKey('repos.name'), nullable=False)
+    repo_name = db.Column(db.String(80), db.ForeignKey('repos.name'), nullable=False, unique=True)
     clone_count = db.Column(db.Integer)
     clone_count_unique = db.Column(db.Integer)
 
