@@ -8,6 +8,7 @@ app.config[
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
+
 class Repos(db.Model):
     __tablename__ = 'repos'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -36,10 +37,19 @@ class Traffic(db.Model):
     def __repr__(self):
         return '<Repo %r>' % self.repo_name
 
-#Code
+
+# Code
 @app.route('/')
 def API():
-    return {"salida": "out"}
+    data = []
+    for repo in Repos.query.all():
+        data.append({
+            repo.name: {
+                "clone_count": Traffic.query.filter_by(repo_name=repo.name).first().clone_count,
+                "clone_count_unique": Traffic.query.filter_by(repo_name=repo.name).first().clone_count_unique
+            }
+        })
+    return data
 
 
 if __name__ == '__main__':
