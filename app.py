@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, jsonify
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
@@ -43,13 +43,22 @@ class Traffic(db.Model):
 def API():
     data = []
     for repo in Repos.query.all():
-        data.append({
-            repo.name: {
-                "clone_count": Traffic.query.filter_by(repo_name=repo.name).first().clone_count,
-                "clone_count_unique": Traffic.query.filter_by(repo_name=repo.name).first().clone_count_unique
-            }
-        })
-    return data
+        traffic = Traffic.query.filter_by(repo_name=repo.name).first()
+        data.append(
+            {"Repository": repo.name,
+             "Traffic":
+                 {"Clones": {"Consolidated": {"Count": traffic.clone_count,
+                                              "Unique": traffic.clone_count_unique
+                                              },
+                             "Daily": {"timestamp": "2020-01-01",
+                                       "Count": traffic.clone_count,
+                                       "Unique": traffic.clone_count_unique
+                                       }
+                             }
+                  }
+             }
+        )
+    return jsonify(data)
 
 
 if __name__ == '__main__':
