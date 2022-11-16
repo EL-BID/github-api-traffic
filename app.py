@@ -22,8 +22,8 @@ class Repos(db.Model):
         return '<Repo %r>' % self.name
 
 
-class Traffic(db.Model):
-    __tablename__ = "traffic"
+class CloneSummary(db.Model):
+    __tablename__ = "clone_summary"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     repo_name = db.Column(db.String(80), db.ForeignKey('repos.name'), nullable=False, unique=True)
     clone_count = db.Column(db.Integer)
@@ -38,22 +38,43 @@ class Traffic(db.Model):
         return '<Repo %r>' % self.repo_name
 
 
+class CloneHistory(db.Model):
+    __tablename__ = "clone_history"
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    repo_name = db.Column(db.String(80), db.ForeignKey('repos.name'))
+    timestamp = db.Column(db.DateTime, nullable=False)
+    clone_count = db.Column(db.Integer)
+    clone_count_unique = db.Column(db.Integer)
+    __table_args__ = (db.UniqueConstraint('timestamp', 'repo_name', name='_repo_timestamp_uc'),)
+
+    def __init__(self, repo_name, timestamp, clone_count, clone_count_unique):
+        self.repo_name = repo_name
+        self.timestamp = timestamp
+        self.clone_count = clone_count
+        self.clone_count_unique = clone_count_unique
+
+    def __repr__(self):
+        return '<Repo %r>' % self.repo_name
+
+
 # Code
 @app.route('/')
 def API():
     data = []
     for repo in Repos.query.all():
-        traffic = Traffic.query.filter_by(repo_name=repo.name).first()
+        clones = CloneSummary.query.filter_by(repo_name=repo.name).first()
+        history_clones = CloneHistory.query.filter_by(repo_name=repo.name).all()
         data.append(
             {"Repository": repo.name,
              "Traffic":
-                 {"Clones": {"Consolidated": {"Count": traffic.clone_count,
-                                              "Unique": traffic.clone_count_unique
+                 {"Clones": {"Consolidated": {"Count": clones.clone_count,
+                                              "Unique": clones.clone_count_unique
                                               },
-                             "Daily": {"timestamp": "2020-01-01",
-                                       "Count": traffic.clone_count,
-                                       "Unique": traffic.clone_count_unique
-                                       }
+                             "History": [{"Count": clone.clone_count,
+                                          "Timestamp": clone.timestamp,
+                                          "Unique": clone.clone_count_unique,
+                                          } for clone in history_clones]
+
                              }
                   }
              }

@@ -1,4 +1,4 @@
-from app import db, Repos, Traffic
+from app import db, Repos, CloneSummary, CloneHistory
 from utils.scripts import GetRepos, GetTraffic, GetAccessToken
 import json
 from app import app
@@ -14,24 +14,42 @@ with app.app_context():
                 pass
 
 
-    def UpdateTraffic():
+    def UpdateClonesSummary():
         token = GetAccessToken()
         token = json.loads(token)["token"]
         repos = Repos.query.all()
         for repo in repos:
             traffic = GetTraffic(token, repo.name)
             for t in traffic:
-                #get actual traffic count and unique values and compare with the ones in the database
-                # do total=actual-old and unique=actual-old
-                # save total as count and unique as count_unique
                 try:
-                    old_clon = Traffic.query.filter_by(repo_name=repo.name).first().clone_count
-                    old_clon_unique = Traffic.query.filter_by(repo_name=repo.name).first().clone_count_unique
-                    actual_clon = t["count"]
-                    actual_clon_unique = t["uniques"]
-                    count = actual_clon - old_clon
-                    count_unique = actual_clon_unique - old_clon_unique
-                    db.session.update(Traffic(repo.id, repo.name, count+actual_clon, count_unique+actual_clon_unique))
+                    row = CloneSummary.query.filter_by(repo_name=repo.name).first()
+                    old_clone = row.clone_count
+                    old_clone_unique = row.clone_count_unique
+                    actual_clone = t["count"]
+                    actual_clone_unique = t["uniques"]
+                    count = actual_clone - old_clone
+                    count_unique = actual_clone_unique - old_clone_unique
+                    row.clone_count = count + actual_clone
+                    row.clone_count_unique = count_unique + actual_clone_unique
                     db.session.commit()
                 except:
-                    pass
+                    db.session.add(
+                        CloneSummary(repo.name, t["count"], t["uniques"]))
+                    db.session.commit()
+
+
+    def UpdateClonesHistory():
+        token = GetAccessToken()
+        token = json.loads(token)["token"]
+        repos = Repos.query.all()
+        for repo in repos:
+            traffic = GetTraffic(token, repo.name)
+            for t in traffic:
+                for clone in t["clones"]:
+                    try:
+                        db.session.add(CloneHistory(repo.name, clone["timestamp"], clone["count"],
+                                                    clone["uniques"]))
+                        db.session.commit()
+                    except Exception as e:
+                        print(e)
+                        pass
