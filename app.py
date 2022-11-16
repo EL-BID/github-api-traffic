@@ -1,11 +1,13 @@
 from flask import Flask, jsonify
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+import json
 
 app = Flask(__name__)
 app.config[
     'SQLALCHEMY_DATABASE_URI'] = 'postgresql://lxjuedczmoskik:077885ca387faed49dd60a9f9f618b63d0396a4d8169dbf8aa54934748482a5c@ec2-54-80-123-146.compute-1.amazonaws.com:5432/duf72gsntfcng'
 db = SQLAlchemy(app)
+app.config['JSON_SORT_KEYS'] = False
 migrate = Migrate(app, db)
 
 
@@ -65,14 +67,14 @@ def API():
         clones = CloneSummary.query.filter_by(repo_name=repo.name).first()
         history_clones = CloneHistory.query.filter_by(repo_name=repo.name).all()
         data.append(
-            {"Repository": repo.name,
-             "Traffic":
-                 {"Clones": {"Consolidated": {"Count": clones.clone_count,
-                                              "Unique": clones.clone_count_unique
+            {"repository": repo.name,
+             "traffic":
+                 {"clones": {"consolidated": {"count": clones.clone_count,
+                                              "unique": clones.clone_count_unique
                                               },
-                             "History": [{"Count": clone.clone_count,
-                                          "Timestamp": clone.timestamp,
-                                          "Unique": clone.clone_count_unique,
+                             "history": [{"timestamp": str(clone.timestamp),
+                                          "count": clone.clone_count,
+                                          "unique": clone.clone_count_unique,
                                           } for clone in history_clones]
 
                              }
