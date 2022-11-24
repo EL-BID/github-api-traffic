@@ -14,7 +14,7 @@ migrate = Migrate(app, db)
 class Repos(db.Model):
     __tablename__ = 'repos'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String(80), unique=True, nullable=False)
+    name = db.Column(db.String(200), unique=True, nullable=False)
 
     def __init__(self, id, name):
         self.id = id
@@ -27,7 +27,7 @@ class Repos(db.Model):
 class CloneSummary(db.Model):
     __tablename__ = "clone_summary"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    repo_name = db.Column(db.String(80), db.ForeignKey('repos.name'), nullable=False, unique=True)
+    repo_name = db.Column(db.String(200), db.ForeignKey('repos.name'), nullable=False, unique=True)
     clone_count = db.Column(db.Integer)
     clone_count_unique = db.Column(db.Integer)
 
@@ -43,7 +43,7 @@ class CloneSummary(db.Model):
 class CloneHistory(db.Model):
     __tablename__ = "clone_history"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    repo_name = db.Column(db.String(80), db.ForeignKey('repos.name'))
+    repo_name = db.Column(db.String(200), db.ForeignKey('repos.name'))
     timestamp = db.Column(db.DateTime, nullable=False)
     clone_count = db.Column(db.Integer)
     clone_count_unique = db.Column(db.Integer)
@@ -62,7 +62,7 @@ class CloneHistory(db.Model):
 class RepoViewsSummary(db.Model):
     __tablename__ = "repo_views"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    repo_name = db.Column(db.String(80), db.ForeignKey('repos.name'))
+    repo_name = db.Column(db.String(200, db.ForeignKey('repos.name')))
     view_count = db.Column(db.Integer)
     view_count_unique = db.Column(db.Integer)
 
@@ -78,7 +78,7 @@ class RepoViewsSummary(db.Model):
 class RepoViewsHistory(db.Model):
     __tablename__ = "repo_views_history"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    repo_name = db.Column(db.String(80), db.ForeignKey('repos.name'))
+    repo_name = db.Column(db.String(200), db.ForeignKey('repos.name'))
     timestamp = db.Column(db.DateTime, nullable=False)
     view_count = db.Column(db.Integer)
     view_count_unique = db.Column(db.Integer)
@@ -89,6 +89,46 @@ class RepoViewsHistory(db.Model):
         self.timestamp = timestamp
         self.view_count = view_count
         self.view_count_unique = view_count_unique
+
+    def __repr__(self):
+        return '<Repo %r>' % self.repo_name
+
+
+class RefSources(db.Model):
+    __tablename__ = "ref_sources"
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    repo_name = db.Column(db.String(200), db.ForeignKey('repos.name'))
+    source = db.Column(db.String(200))
+    count = db.Column(db.Integer)
+    unique = db.Column(db.Integer)
+    __table_args__ = (db.UniqueConstraint('repo_name', 'source', name='_repo_source_uc'),)
+
+    def __init__(self, repo_name, source, count, unique):
+        self.repo_name = repo_name
+        self.source = source
+        self.count = count
+        self.unique = unique
+
+    def __repr__(self):
+        return '<Repo %r>' % self.repo_name
+
+
+class RefPaths(db.Model):
+    __tablename__ = "ref_paths"
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    repo_name = db.Column(db.String(200), db.ForeignKey('repos.name'))
+    path = db.Column(db.String(200))
+    title = db.Column(db.String(200))
+    count = db.Column(db.Integer)
+    unique = db.Column(db.Integer)
+    __table_args__ = (db.UniqueConstraint('repo_name', 'path', name='_repo_path_uc'),)
+
+    def __init__(self, repo_name, path, title, count, unique):
+        self.repo_name = repo_name
+        self.path = path
+        self.title = title
+        self.count = count
+        self.unique = unique
 
     def __repr__(self):
         return '<Repo %r>' % self.repo_name
@@ -123,7 +163,11 @@ def API():
                                          "unique": view.view_count_unique,
                                          } for view in history_views]
 
-                            }
+                            },
+                  "referrers": [{"source": ref.source,
+                                 "count": ref.count,
+                                 "unique": ref.unique,
+                                 } for ref in RefSources.query.filter_by(repo_name=repo.name).all()]
                   }
              }
         )

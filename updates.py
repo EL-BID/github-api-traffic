@@ -1,5 +1,5 @@
-from app import db, Repos, CloneSummary, CloneHistory, RepoViewsSummary, RepoViewsHistory
-from utils.scripts import GetRepos, GetTraffic, GetAccessToken, GetViews
+from app import db, Repos, CloneSummary, CloneHistory, RepoViewsSummary, RepoViewsHistory, RefSources
+from utils.scripts import GetRepos, GetTraffic, GetAccessToken, GetViews, GetRefSources, GetRefPaths
 import json
 from app import app
 
@@ -90,8 +90,62 @@ with app.app_context():
                 for view in t["views"]:
                     try:
                         db.session.add(RepoViewsHistory(repo.name, view["timestamp"], view["count"],
-                                                    view["uniques"]))
+                                                        view["uniques"]))
                         db.session.commit()
                     except Exception as e:
                         print(e)
                         pass
+
+
+    def UpdateRefSources():
+        token = GetAccessToken()
+        token = json.loads(token)["token"]
+        repos = Repos.query.all()
+        for repo in repos:
+            traffic = GetRefSources(token, repo.name)
+            for t in traffic:
+                for ref in t:
+                    try:
+                        print(repo.name, ref["referrer"], ref["count"], ref["uniques"])
+                        row = RefSources.query.filter_by(repo_name=repo.name, source=ref["referrer"]).first()
+                        old_ref = row.count
+                        old_ref_unique = row.unique
+                        actual_ref = ref["count"]
+                        actual_ref_unique = ref["uniques"]
+                        count = actual_ref - old_ref
+                        count_unique = actual_ref_unique - old_ref_unique
+                        row.count = count + actual_ref
+                        row.unique = count_unique + actual_ref_unique
+                        db.session.commit()
+                    except Exception as e:
+                        print(e)
+                        db.session.add(
+                            RefSources(repo.name, ref["referrer"], ref["count"], ref["uniques"]))
+                        db.session.commit()
+
+
+    def UpdatePaths():
+        token = GetAccessToken()
+        token = json.loads(token)["token"]
+        repos = Repos.query.all()
+        for repo in repos:
+            paths = GetRefPaths(token, repo.name)
+            for t in paths:
+                for path in t:
+                    try:
+                        print(repo.name, path["path"], path["title"], path["count"], path["uniques"])
+                        row = RefSources.query.filter_by(repo_name=repo.name, source=path["title"]).first()
+                        old_path = row.count
+                        old_path_unique = row.unique
+                        actual_path = path["count"]
+                        actual_path_unique = path["uniques"]
+                        count = actual_path - old_path
+                        count_unique = actual_path_unique - old_path_unique
+                        row.count = count + actual_path
+                        row.unique = count_unique + actual_path_unique
+                        db.session.commit()
+                    except Exception as e:
+                        print(e)
+                        db.session.add(
+                            RefSources(repo.name, path["referrer"], path["count"], path["uniques"]))
+                        db.session.commit()
