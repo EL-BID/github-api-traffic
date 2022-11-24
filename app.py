@@ -167,10 +167,16 @@ def API():
                   "referrers": [{"source": ref.source,
                                  "count": ref.count,
                                  "unique": ref.unique,
-                                 } for ref in RefSources.query.filter_by(repo_name=repo.name).all()]
+                                 } for ref in RefSources.query.filter_by(repo_name=repo.name).all()],
+                  "paths": [{"path": ref.path,
+                             "title": ref.title,
+                             "count": ref.count,
+                             "unique": ref.unique,
+                             } for ref in RefPaths.query.filter_by(repo_name=repo.name).all()]
                   }
              }
         )
+
     return jsonify(data)
 
 

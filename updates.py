@@ -1,4 +1,4 @@
-from app import db, Repos, CloneSummary, CloneHistory, RepoViewsSummary, RepoViewsHistory, RefSources
+from app import db, Repos, CloneSummary, CloneHistory, RepoViewsSummary, RepoViewsHistory, RefSources, RefPaths
 from utils.scripts import GetRepos, GetTraffic, GetAccessToken, GetViews, GetRefSources, GetRefPaths
 import json
 from app import app
@@ -133,8 +133,7 @@ with app.app_context():
             for t in paths:
                 for path in t:
                     try:
-                        print(repo.name, path["path"], path["title"], path["count"], path["uniques"])
-                        row = RefSources.query.filter_by(repo_name=repo.name, source=path["title"]).first()
+                        row = RefPaths.query.filter_by(repo_name=repo.name, source=path["title"]).first()
                         old_path = row.count
                         old_path_unique = row.unique
                         actual_path = path["count"]
@@ -147,5 +146,5 @@ with app.app_context():
                     except Exception as e:
                         print(e)
                         db.session.add(
-                            RefSources(repo.name, path["referrer"], path["count"], path["uniques"]))
+                            RefPaths(repo.name, path["path"], path["title"], path["count"], path["uniques"]))
                         db.session.commit()
