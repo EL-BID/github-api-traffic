@@ -55,6 +55,17 @@ def GetTraffic(token, repo):
     return results
 
 
+def GetViews(token, repo):
+    results = []
+
+    headers = {
+        "Authorization": "Bearer " + token,
+        "Accept": "application/vnd.github+json"
+    }
+    r = requests.get("https://api.github.com/repos/EL-BID/" + str(repo) + "/traffic/views", headers=headers)
+    results.append(json.loads(r.text))
+    return results
+
 def execute():
     installation = GetInstallations()
     access_token = GetAccessToken(installation)

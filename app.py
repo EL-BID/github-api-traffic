@@ -59,12 +59,49 @@ class CloneHistory(db.Model):
         return '<Repo %r>' % self.repo_name
 
 
+class RepoViewsSummary(db.Model):
+    __tablename__ = "repo_views"
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    repo_name = db.Column(db.String(80), db.ForeignKey('repos.name'))
+    view_count = db.Column(db.Integer)
+    view_count_unique = db.Column(db.Integer)
+
+    def __init__(self, repo_name, view_count, view_count_unique):
+        self.repo_name = repo_name
+        self.view_count = view_count
+        self.view_count_unique = view_count_unique
+
+    def __repr__(self):
+        return '<Repo %r>' % self.repo_name
+
+
+class RepoViewsHistory(db.Model):
+    __tablename__ = "repo_views_history"
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    repo_name = db.Column(db.String(80), db.ForeignKey('repos.name'))
+    timestamp = db.Column(db.DateTime, nullable=False)
+    view_count = db.Column(db.Integer)
+    view_count_unique = db.Column(db.Integer)
+    __table_args__ = (db.UniqueConstraint('timestamp', 'repo_name', name='_repo_view_timestamp_uc'),)
+
+    def __init__(self, repo_name, timestamp, view_count, view_count_unique):
+        self.repo_name = repo_name
+        self.timestamp = timestamp
+        self.view_count = view_count
+        self.view_count_unique = view_count_unique
+
+    def __repr__(self):
+        return '<Repo %r>' % self.repo_name
+
+
 # Code
 @app.route('/')
 def API():
     data = []
     for repo in Repos.query.all():
         clones = CloneSummary.query.filter_by(repo_name=repo.name).first()
+        views = RepoViewsSummary.query.filter_by(repo_name=repo.name).first()
+        history_views = RepoViewsHistory.query.filter_by(repo_name=repo.name).all()
         history_clones = CloneHistory.query.filter_by(repo_name=repo.name).all()
         data.append(
             {"repository": repo.name,
@@ -77,7 +114,16 @@ def API():
                                           "unique": clone.clone_count_unique,
                                           } for clone in history_clones]
 
-                             }
+                             },
+                  "views": {"consolidated": {"count": views.view_count,
+                                             "unique": views.view_count_unique
+                                             },
+                            "history": [{"timestamp": str(view.timestamp),
+                                         "count": view.view_count,
+                                         "unique": view.view_count_unique,
+                                         } for view in history_views]
+
+                            }
                   }
              }
         )

@@ -1,5 +1,5 @@
-from app import db, Repos, CloneSummary, CloneHistory
-from utils.scripts import GetRepos, GetTraffic, GetAccessToken
+from app import db, Repos, CloneSummary, CloneHistory, RepoViewsSummary, RepoViewsHistory
+from utils.scripts import GetRepos, GetTraffic, GetAccessToken, GetViews
 import json
 from app import app
 
@@ -49,6 +49,48 @@ with app.app_context():
                     try:
                         db.session.add(CloneHistory(repo.name, clone["timestamp"], clone["count"],
                                                     clone["uniques"]))
+                        db.session.commit()
+                    except Exception as e:
+                        print(e)
+                        pass
+
+
+    def UpdateViewsSummary():
+        token = GetAccessToken()
+        token = json.loads(token)["token"]
+        repos = Repos.query.all()
+        for repo in repos:
+            traffic = GetViews(token, repo.name)
+            for t in traffic:
+                try:
+                    row = RepoViewsSummary.query.filter_by(repo_name=repo.name).first()
+                    old_view = row.view_count
+                    old_view_unique = row.view_count_unique
+                    actual_view = t["count"]
+                    actual_view_unique = t["uniques"]
+                    count = actual_view - old_view
+                    count_unique = actual_view_unique - old_view_unique
+                    row.view_count = count + actual_view
+                    row.view_count_unique = count_unique + actual_view_unique
+                    db.session.commit()
+                except Exception as e:
+                    print(e)
+                    db.session.add(
+                        RepoViewsSummary(repo.name, t["count"], t["uniques"]))
+                    db.session.commit()
+
+
+    def UpdateViewsHistory():
+        token = GetAccessToken()
+        token = json.loads(token)["token"]
+        repos = Repos.query.all()
+        for repo in repos:
+            traffic = GetViews(token, repo.name)
+            for t in traffic:
+                for view in t["views"]:
+                    try:
+                        db.session.add(RepoViewsHistory(repo.name, view["timestamp"], view["count"],
+                                                    view["uniques"]))
                         db.session.commit()
                     except Exception as e:
                         print(e)
