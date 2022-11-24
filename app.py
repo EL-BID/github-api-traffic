@@ -62,7 +62,7 @@ class CloneHistory(db.Model):
 class RepoViewsSummary(db.Model):
     __tablename__ = "repo_views"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    repo_name = db.Column(db.String(200, db.ForeignKey('repos.name')))
+    repo_name = db.Column(db.String(200), db.ForeignKey('repos.name'))
     view_count = db.Column(db.Integer)
     view_count_unique = db.Column(db.Integer)
 
