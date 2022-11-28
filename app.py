@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, make_response
+from flask import Flask, Response
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 import json
@@ -177,7 +177,8 @@ def API():
              }
         )
 
-    return make_response(jsonify(data), 200)
+    ##return json with spaces pretty format
+    return Response(json.dumps(data, indent=4, sort_keys=True), mimetype='application/json')
 
 
 if __name__ == '__main__':
