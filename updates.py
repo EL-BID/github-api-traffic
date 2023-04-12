@@ -10,8 +10,10 @@ with app.app_context():
             try:
                 db.session.add(Repos(repo["id"], repo["name"]))
                 db.session.commit()
-            except:
-                pass
+            except Exception as e:
+                print(e)
+                db.session.rollback()
+                return "Failed"
 
 
     def UpdateClonesSummary():

@@ -11,7 +11,7 @@ with app.app_context():
 
     scheduler = BlockingScheduler()
 
-    @scheduler.scheduled_job('cron', day_of_week='mon-sun', hour=0, minute=0)
+    @scheduler.scheduled_job('cron', day_of_week='mon-sun', hour="*", minute="*", second="0")
     def job1():
         out = UpdateRepos()
         print(out)
