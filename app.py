@@ -5,7 +5,7 @@ import json
 
 app = Flask(__name__)
 app.config[
-    'SQLALCHEMY_DATABASE_URI'] = 'postgresql://lxjuedczmoskik:077885ca387faed49dd60a9f9f618b63d0396a4d8169dbf8aa54934748482a5c@ec2-54-80-123-146.compute-1.amazonaws.com:5432/duf72gsntfcng'
+    'SQLALCHEMY_DATABASE_URI'] = "postgresql://smpaarlbxuulrk:fbec78f21edc72ddf2a8b11d5d5c53645988d9c0a6eae547d64f2849aba7bfa8@ec2-54-234-13-16.compute-1.amazonaws.com:5432/d93oe89kvju7q3"
 db = SQLAlchemy(app)
 app.config['JSON_SORT_KEYS'] = False
 migrate = Migrate(app, db)
