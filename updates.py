@@ -13,7 +13,7 @@ with app.app_context():
             except Exception as e:
                 print(e)
                 db.session.rollback()
-                return "Failed"
+                continue
 
 
     def UpdateClonesSummary():
@@ -38,6 +38,7 @@ with app.app_context():
                     db.session.add(
                         CloneSummary(repo.name, t["count"], t["uniques"]))
                     db.session.commit()
+                    continue
 
 
     def UpdateClonesHistory():
@@ -54,7 +55,7 @@ with app.app_context():
                         db.session.commit()
                     except Exception as e:
                         print(e)
-                        pass
+                        continue
 
 
     def UpdateViewsSummary():
@@ -80,6 +81,7 @@ with app.app_context():
                     db.session.add(
                         RepoViewsSummary(repo.name, t["count"], t["uniques"]))
                     db.session.commit()
+                    continue
 
 
     def UpdateViewsHistory():
@@ -96,7 +98,7 @@ with app.app_context():
                         db.session.commit()
                     except Exception as e:
                         print(e)
-                        pass
+                        continue
 
 
     def UpdateRefSources():
@@ -124,6 +126,7 @@ with app.app_context():
                         db.session.add(
                             RefSources(repo.name, ref["referrer"], ref["count"], ref["uniques"]))
                         db.session.commit()
+                        continue
 
 
     def UpdatePaths():
@@ -144,9 +147,9 @@ with app.app_context():
                         count_unique = actual_path_unique - old_path_unique
                         row.count = count + actual_path
                         row.unique = count_unique + actual_path_unique
-                        db.session.commit()
-                    except Exception as e:
-                        print(e)
                         db.session.add(
                             RefPaths(repo.name, path["path"], path["title"], path["count"], path["uniques"]))
                         db.session.commit()
+                    except Exception as e:
+                        print(e)
+                        continue
