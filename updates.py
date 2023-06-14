@@ -5,15 +5,21 @@ from app import app
 
 with app.app_context():
     def UpdateRepos():
-        repos = GetRepos()
-        for repo in repos:
-            try:
-                db.session.add(Repos(repo["id"], repo["name"]))
-                db.session.commit()
-            except Exception as e:
-                print(e)
-                db.session.rollback()
-                continue
+        page = 1
+        per_page = 30
+        while True:
+            repos = GetRepos(page=page, per_page=per_page)
+            if not repos:
+                break
+            for repo in repos:
+                try:
+                    db.session.add(Repos(repo["id"], repo["name"]))
+                    db.session.commit()
+                except Exception as e:
+                    print(e)
+                    db.session.rollback()
+                    continue
+            page += 1
 
 
     def UpdateClonesSummary():
@@ -29,16 +35,25 @@ with app.app_context():
                     old_clone_unique = row.clone_count_unique
                     actual_clone = t["count"]
                     actual_clone_unique = t["uniques"]
-                    count = actual_clone - old_clone
-                    count_unique = actual_clone_unique - old_clone_unique
-                    row.clone_count = count + actual_clone
-                    row.clone_count_unique = count_unique + actual_clone_unique
+
+                    if actual_clone >= old_clone:
+                        count = actual_clone - old_clone
+                    else:
+                        count = actual_clone
+
+                    if actual_clone_unique >= old_clone_unique:
+                        count_unique = actual_clone_unique - old_clone_unique
+                    else:
+                        count_unique = actual_clone_unique
+
+                    row.clone_count = count + old_clone
+                    row.clone_count_unique = count_unique + old_clone_unique
                     db.session.commit()
                 except:
-                    db.session.add(
-                        CloneSummary(repo.name, t["count"], t["uniques"]))
+                    db.session.add(CloneSummary(repo.name, t["count"], t["uniques"]))
                     db.session.commit()
                     continue
+
 
 
     def UpdateClonesHistory():
@@ -71,17 +86,26 @@ with app.app_context():
                     old_view_unique = row.view_count_unique
                     actual_view = t["count"]
                     actual_view_unique = t["uniques"]
-                    count = actual_view - old_view
-                    count_unique = actual_view_unique - old_view_unique
-                    row.view_count = count + actual_view
-                    row.view_count_unique = count_unique + actual_view_unique
+
+                    if actual_view >= old_view:
+                        count = actual_view - old_view
+                    else:
+                        count = actual_view
+
+                    if actual_view_unique >= old_view_unique:
+                        count_unique = actual_view_unique - old_view_unique
+                    else:
+                        count_unique = actual_view_unique
+
+                    row.view_count = count + old_view
+                    row.view_count_unique = count_unique + old_view_unique
                     db.session.commit()
                 except Exception as e:
                     print(e)
-                    db.session.add(
-                        RepoViewsSummary(repo.name, t["count"], t["uniques"]))
+                    db.session.add(RepoViewsSummary(repo.name, t["count"], t["uniques"]))
                     db.session.commit()
                     continue
+
 
 
     def UpdateViewsHistory():
@@ -116,10 +140,19 @@ with app.app_context():
                         old_ref_unique = row.unique
                         actual_ref = ref["count"]
                         actual_ref_unique = ref["uniques"]
-                        count = actual_ref - old_ref
-                        count_unique = actual_ref_unique - old_ref_unique
-                        row.count = count + actual_ref
-                        row.unique = count_unique + actual_ref_unique
+
+                        if actual_ref >= old_ref:
+                            count = actual_ref - old_ref
+                        else:
+                            count = actual_ref
+
+                        if actual_ref_unique >= old_ref_unique:
+                            count_unique = actual_ref_unique - old_ref_unique
+                        else:
+                            count_unique = actual_ref_unique
+
+                        row.count = count + old_ref
+                        row.unique = count_unique + old_ref_unique
                         db.session.commit()
                     except Exception as e:
                         print(e)
@@ -127,6 +160,7 @@ with app.app_context():
                             RefSources(repo.name, ref["referrer"], ref["count"], ref["uniques"]))
                         db.session.commit()
                         continue
+
 
 
     def UpdatePaths():
@@ -143,13 +177,24 @@ with app.app_context():
                         old_path_unique = row.unique
                         actual_path = path["count"]
                         actual_path_unique = path["uniques"]
-                        count = actual_path - old_path
-                        count_unique = actual_path_unique - old_path_unique
-                        row.count = count + actual_path
-                        row.unique = count_unique + actual_path_unique
-                        db.session.add(
-                            RefPaths(repo.name, path["path"], path["title"], path["count"], path["uniques"]))
+
+                        if actual_path >= old_path:
+                            count = actual_path - old_path
+                        else:
+                            count = actual_path
+
+                        if actual_path_unique >= old_path_unique:
+                            count_unique = actual_path_unique - old_path_unique
+                        else:
+                            count_unique = actual_path_unique
+
+                        row.count = count + old_path
+                        row.unique = count_unique + old_path_unique
                         db.session.commit()
                     except Exception as e:
                         print(e)
+                        db.session.add(
+                            RefPaths(repo.name, path["path"], path["title"], path["count"], path["uniques"]))
+                        db.session.commit()
                         continue
+

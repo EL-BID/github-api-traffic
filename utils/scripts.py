@@ -35,12 +35,17 @@ def GetAccessToken():
     return r.text
 
 
-def GetRepos():
+def GetRepos(page=1, per_page=30):
     headers = {
         "Accept": "application/vnd.github+json"
     }
-    r = requests.get("https://api.github.com/users/EL-BID/repos", headers=headers)
+    params = {
+        "page": page,
+        "per_page": per_page
+    }
+    r = requests.get("https://api.github.com/users/EL-BID/repos", headers=headers, params=params)
     return json.loads(r.text)
+
 
 
 def GetTraffic(token, repo):
