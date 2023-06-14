@@ -7,7 +7,7 @@ from flask import Flask
 scheduler = BlockingScheduler()
 
 
-@scheduler.scheduled_job('interval', minutes=1)
+@scheduler.scheduled_job('interval', hours=12)
 def job1():
     with app.app_context():
         out = UpdateRepos()
@@ -15,42 +15,42 @@ def job1():
 
 
 
-@scheduler.scheduled_job('interval', minutes=2)
+@scheduler.scheduled_job('interval', hours=13)
 def job2():
     with app.app_context():
         out = UpdateClonesSummary()
         print(out)
 
 
-@scheduler.scheduled_job('interval', minutes=3)
+@scheduler.scheduled_job('interval', hours=14)
 def job3():
     with app.app_context():
         out = UpdateClonesHistory()
         print(out)
 
 
-@scheduler.scheduled_job('interval', minutes=4)
+@scheduler.scheduled_job('interval', hours=15)
 def job4():
     with app.app_context():
         out = UpdateViewsSummary()
         print(out)
 
 
-@scheduler.scheduled_job('interval', minutes=5)
+@scheduler.scheduled_job('interval', hours=16)
 def job5():
     with app.app_context():
         out = UpdateViewsHistory()
         print(out)
 
 
-@scheduler.scheduled_job('interval', minutes=6)
+@scheduler.scheduled_job('interval', hours=17)
 def job6():
     with app.app_context():
         out = UpdateRefSources()
         print(out)
 
 
-@scheduler.scheduled_job('interval', minutes=7)
+@scheduler.scheduled_job('interval', hours=18)
 def job7():
     with app.app_context():
         out = UpdatePaths()
