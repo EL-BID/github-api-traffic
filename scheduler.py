@@ -4,10 +4,6 @@ from updates import UpdateRepos, UpdateClonesSummary, UpdateClonesHistory, Updat
 from app import app
 
 with app.app_context():
-    class Config:
-        SCHEDULER_API_ENABLED = True
-
-
     scheduler = BlockingScheduler()
 
 
