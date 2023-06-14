@@ -2,8 +2,10 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 from updates import UpdateRepos, UpdateClonesSummary, UpdateClonesHistory, UpdateViewsSummary, UpdateViewsHistory, \
     UpdateRefSources, UpdatePaths
 from app import app
+from flask import Flask
 
 def app_context():
+    app = Flask(__name__)
     with app.app_context():
         yield
 
