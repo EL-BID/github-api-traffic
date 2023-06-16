@@ -95,6 +95,26 @@ def GetRefPaths(token, repo):
     results.append(json.loads(r.text))
     return results
 
+def GetForks(token, repo):
+    forks = []
+
+    headers = {
+        "Authorization": "Bearer " + token,
+        "Accept": "application/vnd.github+json"
+    }
+    
+    page = 1
+    while True:
+        r = requests.get(f"https://api.github.com/repos/EL-BID/{repo}/forks?page={page}&per_page=100", headers=headers)
+        forks_list = json.loads(r.text)
+        if len(forks_list) == 0:
+            break
+        forks.extend(forks_list)
+        page += 1
+    
+    return forks
+
+
 def execute():
     installation = GetInstallations()
     access_token = GetAccessToken(installation)
