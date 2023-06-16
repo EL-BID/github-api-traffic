@@ -202,8 +202,11 @@ with app.app_context():
         token = GetAccessToken()
         token = json.loads(token)["token"]
         repos = Repos.query.all()
+        print(token, repos)
         for repo in repos:
             forks = GetForks(token, repo)
+            print("forks")
+            print(forks)
             for fork in forks:
                 try:
                     fork_obj = Forks(url=fork["html_url"], repo_name=repo)

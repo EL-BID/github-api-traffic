@@ -56,7 +56,7 @@ def job7():
         out = UpdatePaths()
         print(out)
 
-@scheduler.scheduled_job('interval', minutes=2)
+@scheduler.scheduled_job('interval', hours=19)
 def job8():
     with app.app_context():
         out = UpdateForks()
