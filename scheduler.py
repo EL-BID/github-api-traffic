@@ -1,6 +1,6 @@
 from apscheduler.schedulers.blocking import BlockingScheduler
 from updates import UpdateRepos, UpdateClonesSummary, UpdateClonesHistory, UpdateViewsSummary, UpdateViewsHistory, \
-    UpdateRefSources, UpdatePaths
+    UpdateRefSources, UpdatePaths, GetForks
 from app import app
 from flask import Flask
 
@@ -56,5 +56,10 @@ def job7():
         out = UpdatePaths()
         print(out)
 
+@scheduler.scheduled_job('interval', minutes=2)
+def job8():
+    with app.app_context():
+        out = GetForks()
+        print(out)
 
 scheduler.start()

@@ -133,6 +133,14 @@ class RefPaths(db.Model):
     def __repr__(self):
         return '<Repo %r>' % self.repo_name
 
+class Forks(db.Model):
+    __tablename__ = "forks"
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    url = db.Column(db.String(200))
+    repo_name = db.Column(db.String(200), db.ForeignKey("repos.name"))
+
+    def __init__(self, url):
+        self.url = url
 
 # Code
 @app.route('/')

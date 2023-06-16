@@ -1,5 +1,5 @@
-from app import db, Repos, CloneSummary, CloneHistory, RepoViewsSummary, RepoViewsHistory, RefSources, RefPaths
-from utils.scripts import GetRepos, GetTraffic, GetAccessToken, GetViews, GetRefSources, GetRefPaths
+from app import db, Repos, CloneSummary, CloneHistory, RepoViewsSummary, RepoViewsHistory, RefSources, RefPaths, Forks
+from utils.scripts import GetRepos, GetTraffic, GetAccessToken, GetViews, GetRefSources, GetRefPaths, GetForks
 import json
 from app import app
 
@@ -197,4 +197,20 @@ with app.app_context():
                             RefPaths(repo.name, path["path"], path["title"], path["count"], path["uniques"]))
                         db.session.commit()
                         continue
+
+    def UpdateForks():
+        token = GetAccessToken()
+        token = json.loads(token)["token"]
+        repos = Repos.query.all()
+        for repo in repos:
+            forks = GetForks(token, repo)
+            for fork in forks:
+                try:
+                    fork_obj = Forks(url=fork["html_url"], repo_name=repo)
+                    db.session.add(fork_obj)
+                    db.session.commit()
+                except Exception as e:
+                    print(e)
+                    db.session.rollback()
+                    continue
 
