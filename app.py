@@ -163,7 +163,7 @@ def API():
                                           } for clone in history_clones]
 
                              },
-                  "views": {"consolidated": {"count": views.view_count,
+                    "views": {"consolidated": {"count": views.view_count,
                                              "unique": views.view_count_unique
                                              },
                             "history": [{"timestamp": str(view.timestamp),
@@ -172,15 +172,20 @@ def API():
                                          } for view in history_views]
 
                             },
-                  "referrers": [{"source": ref.source,
+                "referrers": [{"source": ref.source,
                                  "count": ref.count,
                                  "unique": ref.unique,
                                  } for ref in RefSources.query.filter_by(repo_name=repo.name).all()],
-                  "paths": [{"path": ref.path,
+                "paths": [{"path": ref.path,
                              "title": ref.title,
                              "count": ref.count,
                              "unique": ref.unique,
-                             } for ref in RefPaths.query.filter_by(repo_name=repo.name).all()]
+                             } for ref in RefPaths.query.filter_by(repo_name=repo.name).all()],
+                "forks": [
+                        {
+                            "url": fork.url
+                        } for fork in Forks.query.filter_by(repository_id=repo.id).all()
+                    ]
                   }
              }
         )
