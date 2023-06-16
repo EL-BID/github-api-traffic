@@ -184,7 +184,7 @@ def API():
                 "forks": [
                         {
                             "url": fork.url
-                        } for fork in Forks.query.filter_by(repository_id=repo.id).all()
+                        } for fork in Forks.query.filter_by(repo_name=repo.name).all()
                     ]
                   }
              }
