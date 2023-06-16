@@ -137,7 +137,7 @@ class Forks(db.Model):
     __tablename__ = "forks"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     url = db.Column(db.String(200))
-    repo_name = db.Column(db.String(200), db.ForeignKey("repos.name"))
+    repo_name = db.Column(db.String(200), db.ForeignKey("repos.name"), unique=True)
 
     def __init__(self, url):
         self.url = url
