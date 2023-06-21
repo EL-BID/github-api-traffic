@@ -2,6 +2,8 @@ from app import db, Repos, CloneSummary, CloneHistory, RepoViewsSummary, RepoVie
 from utils.scripts import GetRepos, GetTraffic, GetAccessToken, GetViews, GetRefSources, GetRefPaths, GetForks
 import json
 from app import app
+from sqlalchemy.exc import IntegrityError
+
 
 with app.app_context():
     def UpdateRepos():
@@ -71,6 +73,7 @@ with app.app_context():
                         db.session.commit()
                     except Exception as e:
                         print(e)
+                        db.session.rollback()
                         continue
 
 
@@ -118,12 +121,22 @@ with app.app_context():
             for t in traffic:
                 for view in t["views"]:
                     try:
-                        db.session.add(RepoViewsHistory(repo.name, view["timestamp"], view["count"],
-                                                        view["uniques"]))
+                        db.session.add(RepoViewsHistory(repo.name, view["timestamp"], view["count"], view["uniques"]))
                         db.session.commit()
+                    except IntegrityError as e:
+                        print(e)
+                        db.session.rollback()
+                        # Optional: Update the existing record instead of inserting a new one
+                        existing_record = RepoViewsHistory.query.filter_by(repo_name=repo.name, timestamp=view["timestamp"]).first()
+                        if existing_record:
+                            existing_record.view_count = view["count"]
+                            existing_record.view_count_unique = view["uniques"]
+                            db.session.commit()
                     except Exception as e:
                         print(e)
+                        db.session.rollback()
                         continue
+
 
 
     def UpdateRefSources():
@@ -173,48 +186,68 @@ with app.app_context():
             for t in paths:
                 for path in t:
                     try:
-                        row = RefPaths.query.filter_by(repo_name=repo.name, source=path["title"]).first()
-                        old_path = row.count
-                        old_path_unique = row.unique
-                        actual_path = path["count"]
-                        actual_path_unique = path["uniques"]
+                        row = RefPaths.query.filter_by(repo_name=repo.name, title=path["title"]).first()
+                        if row:
+                            old_path = row.count
+                            old_path_unique = row.unique
+                            actual_path = path["count"]
+                            actual_path_unique = path["uniques"]
 
-                        if actual_path >= old_path:
-                            count = actual_path - old_path
+                            if actual_path >= old_path:
+                                count = actual_path - old_path
+                            else:
+                                count = actual_path
+
+                            if actual_path_unique >= old_path_unique:
+                                count_unique = actual_path_unique - old_path_unique
+                            else:
+                                count_unique = actual_path_unique
+
+                            row.count = count + old_path
+                            row.unique = count_unique + old_path_unique
+                            db.session.commit()
                         else:
-                            count = actual_path
-
-                        if actual_path_unique >= old_path_unique:
-                            count_unique = actual_path_unique - old_path_unique
-                        else:
-                            count_unique = actual_path_unique
-
-                        row.count = count + old_path
-                        row.unique = count_unique + old_path_unique
-                        db.session.commit()
+                            db.session.add(RefPaths(repo_name=repo.name, path=path["path"], title=path["title"], count=path["count"], unique=path["uniques"]))
+                            db.session.commit()
                     except Exception as e:
                         print(e)
-                        db.session.add(
-                            RefPaths(repo.name, path["path"], path["title"], path["count"], path["uniques"]))
-                        db.session.commit()
                         continue
 
     def UpdateForks():
+        page = 1
+        per_page = 30
         token = GetAccessToken()
         token = json.loads(token)["token"]
         repos = Repos.query.all()
-        print(token, repos)
-        for repo in repos:
-            forks = GetForks(token, repo)
-            print("forks")
-            print(forks)
-            for fork in forks:
-                try:
-                    fork_obj = Forks(url=fork["html_url"], repo_name=repo)
-                    db.session.add(fork_obj)
-                    db.session.commit()
-                except Exception as e:
-                    print(e)
-                    db.session.rollback()
-                    continue
+        
+        while True:
+            forks_found = False  # Flag to check if forks were found
+            
+            for repo in repos:
+                repo_name = repo.__repr__().split("'")[1]
+            
+                forks = GetForks(token, repo_name, page=page, per_page=per_page)
+                
+                if forks is None or len(forks) == 0:
+                    forks_found = False
+                    break
+                    
+                forks_found = True  # Forks were found
+                
+                for fork in forks:
+                    try:
+                        fork_obj = Forks(url=fork["html_url"], repo_name=repo_name)
+                        db.session.add(fork_obj)
+                        db.session.commit()
+                    except Exception as e:
+                        print(e)
+                        db.session.rollback()
+                        db.session.commit()
+                        continue
+            
+            if not forks_found:  # Exit the loop if no forks were found
+                break
+            
+            page += 1
+
 

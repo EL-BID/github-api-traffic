@@ -95,24 +95,19 @@ def GetRefPaths(token, repo):
     results.append(json.loads(r.text))
     return results
 
-def GetForks(token, repo):
-    forks = []
-
+def GetForks(token, repo_name, page=1, per_page=30):
     headers = {
         "Authorization": "Bearer " + token,
         "Accept": "application/vnd.github+json"
     }
-    
-    page = 1
-    while True:
-        r = requests.get(f"https://api.github.com/repos/EL-BID/{repo}/forks?page={page}&per_page=100", headers=headers)
-        forks_list = json.loads(r.text)
-        if len(forks_list) == 0:
-            break
-        forks.extend(forks_list)
-        page += 1
-    
-    return forks
+    params = {
+        "page": page,
+        "per_page": per_page
+    }
+
+    r = requests.get("https://api.github.com/repos/EL-BID/"+ str(repo_name) +"/forks", headers=headers, params=params)
+    forks_list = json.loads(r.text)
+    return forks_list
 
 
 def execute():
