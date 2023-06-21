@@ -9,6 +9,7 @@ scheduler = BlockingScheduler()
 
 @scheduler.scheduled_job('interval', minutes=5)
 def job1():
+    print("job1")
     with app.app_context():
         out = UpdateRepos()
         print(out)
@@ -17,6 +18,7 @@ def job1():
 
 @scheduler.scheduled_job('interval', minutes=5)
 def job2():
+    print("job2")
     with app.app_context():
         out = UpdateClonesSummary()
         print(out)
@@ -24,6 +26,7 @@ def job2():
 
 @scheduler.scheduled_job('interval', minutes=5)
 def job3():
+    print("job3")
     with app.app_context():
         out = UpdateClonesHistory()
         print(out)
@@ -31,6 +34,7 @@ def job3():
 
 @scheduler.scheduled_job('interval', minutes=5)
 def job4():
+    print("job4")
     with app.app_context():
         out = UpdateViewsSummary()
         print(out)
@@ -38,6 +42,7 @@ def job4():
 
 @scheduler.scheduled_job('interval', minutes=5)
 def job5():
+    print("job5")
     with app.app_context():
         out = UpdateViewsHistory()
         print(out)
@@ -45,6 +50,7 @@ def job5():
 
 @scheduler.scheduled_job('interval', minutes=5)
 def job6():
+    print("job6")
     with app.app_context():
         out = UpdateRefSources()
         print(out)
@@ -52,12 +58,14 @@ def job6():
 
 @scheduler.scheduled_job('interval', minutes=5)
 def job7():
+    print("job7")
     with app.app_context():
         out = UpdatePaths()
         print(out)
 
 @scheduler.scheduled_job('interval', minutes=5)
 def job8():
+    print("job8")
     with app.app_context():
         out = UpdateForks()
         print(out)
