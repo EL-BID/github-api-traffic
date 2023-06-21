@@ -22,41 +22,41 @@ def job2():
         print(out)
 
 
-@scheduler.scheduled_job('interval', hours=10)
+@scheduler.scheduled_job('interval', hours=11)
 def job3():
     with app.app_context():
         out = UpdateClonesHistory()
         print(out)
 
 
-@scheduler.scheduled_job('interval', hours=10)
+@scheduler.scheduled_job('interval', hours=12)
 def job4():
     with app.app_context():
         out = UpdateViewsSummary()
         print(out)
 
 
-@scheduler.scheduled_job('interval', hours=10)
+@scheduler.scheduled_job('interval', hours=13)
 def job5():
     with app.app_context():
         out = UpdateViewsHistory()
         print(out)
 
 
-@scheduler.scheduled_job('interval', hours=10)
+@scheduler.scheduled_job('interval', hours=14)
 def job6():
     with app.app_context():
         out = UpdateRefSources()
         print(out)
 
 
-@scheduler.scheduled_job('interval', hours=10)
+@scheduler.scheduled_job('interval', hours=15)
 def job7():
     with app.app_context():
         out = UpdatePaths()
         print(out)
 
-@scheduler.scheduled_job('interval', hours=10)
+@scheduler.scheduled_job('interval', hours=16)
 def job8():
     with app.app_context():
         out = UpdateForks()
