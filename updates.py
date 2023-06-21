@@ -49,7 +49,8 @@ with app.app_context():
                     row.clone_count = count + old_clone
                     row.clone_count_unique = count_unique + old_clone_unique
                     db.session.commit()
-                except:
+                except Exception as e:
+                    print(e)
                     db.session.add(CloneSummary(repo.name, t["count"], t["uniques"]))
                     db.session.commit()
                     continue
