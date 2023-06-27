@@ -15,28 +15,28 @@ def job1():
 
 
 
-@scheduler.scheduled_job('interval', minutes=5)
+@scheduler.scheduled_job('interval', minutes=1)
 def job2():
     with app.app_context():
         out = UpdateClonesSummary()
         print(out)
 
 
-@scheduler.scheduled_job('interval', minutes=5)
+@scheduler.scheduled_job('interval', minutes=2)
 def job3():
     with app.app_context():
         out = UpdateClonesHistory()
         print(out)
 
 
-@scheduler.scheduled_job('interval', minutes=5)
+@scheduler.scheduled_job('interval', minutes=3)
 def job4():
     with app.app_context():
         out = UpdateViewsSummary()
         print(out)
 
 
-@scheduler.scheduled_job('interval', minutes=5)
+@scheduler.scheduled_job('interval', minutes=4)
 def job5():
     with app.app_context():
         out = UpdateViewsHistory()
@@ -50,13 +50,13 @@ def job6():
         print(out)
 
 
-@scheduler.scheduled_job('interval', minutes=5)
+@scheduler.scheduled_job('interval', minutes=6)
 def job7():
     with app.app_context():
         out = UpdatePaths()
         print(out)
 
-@scheduler.scheduled_job('interval', minutes=5)
+@scheduler.scheduled_job('interval', minutes=7)
 def job8():
     with app.app_context():
         out = UpdateForks()
