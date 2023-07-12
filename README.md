@@ -86,8 +86,3 @@ The forks section provides information about the forks of the repository.
 
 - Description: Total count of forks for the repository.
 
-## Example JSON Data
-
-The JSON data provided in this repository is an example of how the traffic data is structured. It contains data for multiple repositories, each with their respective traffic information.
-
-Feel free to explore the JSON data to gain insights into the traffic patterns of the repositories.
