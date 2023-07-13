@@ -215,39 +215,27 @@ with app.app_context():
 
     def UpdateForks():
         page = 1
-        per_page = 30
+        per_page = 500
         token = GetAccessToken()
         token = json.loads(token)["token"]
         repos = Repos.query.all()
         
-        while True:
-            forks_found = False  # Flag to check if forks were found
-            
-            for repo in repos:
-                repo_name = repo.__repr__().split("'")[1]
-            
-                forks = GetForks(token, repo_name, page=page, per_page=per_page)
-                
-                if forks is None or len(forks) == 0:
-                    forks_found = False
-                    break
-                    
-                forks_found = True  # Forks were found
-                
-                for fork in forks:
-                    try:
-                        fork_obj = Forks(url=fork["html_url"], repo_name=repo_name)
-                        db.session.add(fork_obj)
-                        db.session.commit()
-                    except Exception as e:
-                        print(e)
-                        db.session.rollback()
-                        db.session.commit()
-                        continue
-            
-            if not forks_found:  # Exit the loop if no forks were found
-                break
-            
-            page += 1
+        for repo in repos:
+            print(repo.name)
+            forks = GetForks(token, repo.name, page=page, per_page=per_page)
+
+            if forks is None or len(forks) == 0:
+                continue
+                      
+            for fork in forks:
+                try:
+                    fork_obj = Forks(url=fork["html_url"], repo_name=repo.name)
+                    db.session.add(fork_obj)
+                    db.session.commit()
+                except Exception as e:
+                    print(e)
+                    db.session.rollback()
+                    db.session.commit()
+                    continue
 
 
