@@ -7,12 +7,11 @@ from flask import Flask
 scheduler = BlockingScheduler()
 
 
-@scheduler.scheduled_job('interval', hours=48)
+@scheduler.scheduled_job('interval', hours=19)
 def job1():
     with app.app_context():
         out = UpdateRepos()
         print(out)
-
 
 
 @scheduler.scheduled_job('interval', hours=12)
@@ -56,10 +55,12 @@ def job7():
         out = UpdatePaths()
         print(out)
 
+
 @scheduler.scheduled_job('interval', hours=18)
 def job8():
     with app.app_context():
         out = UpdateForks()
         print(out)
+
 
 scheduler.start()
