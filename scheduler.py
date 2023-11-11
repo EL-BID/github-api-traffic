@@ -7,7 +7,7 @@ from flask import Flask
 scheduler = BlockingScheduler()
 
 
-@scheduler.scheduled_job('interval', hours=19)
+@scheduler.scheduled_job('interval', hours=10)
 def job1():
     with app.app_context():
         out = UpdateRepos()

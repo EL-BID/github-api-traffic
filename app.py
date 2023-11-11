@@ -160,12 +160,12 @@ def API():
         data.append(
             {"repository": repo.name,
              "traffic":
-                 {"clones": {"consolidated": {"count": clones.clone_count,
-                                              "unique": clones.clone_count_unique
+                 {"clones": {"consolidated": {"count": clones.clone_count if clones.clone_count is not None else 0,
+                                              "unique": clones.clone_count_unique if clones.clone_count_unique is not None else 0,
                                               },
                              "history": [{"timestamp": str(clone.timestamp),
-                                          "count": clone.clone_count,
-                                          "unique": clone.clone_count_unique,
+                                          "count": clone.clone_count if clone.clone_count is not None else 0,
+                                          "unique": clone.clone_count_unique if clone.clone_count_unique is not None else 0,
                                           } for clone in history_clones]
 
                              },
