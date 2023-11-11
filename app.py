@@ -160,43 +160,58 @@ def API():
         forks_count = Forks.query.filter_by(repo_name=repo.name).count()
         print(repo.name)
         data.append(
-            {"repository": repo.name,
-             "traffic":
-                 {"clones": {"consolidated": {"count": clones.get("clone_count", None),
-                                              "unique": clones.get("clone_count_unique", None),
-                                              },
-                             "history": [{"timestamp": str(clone.timestamp),
-                                          "count": clone.get("clone_count", None),
-                                          "unique": clone.get("clone_count_unique", None),
-                                          } for clone in history_clones]
-
-                             },
-                  "views": {"consolidated": {"count": views.view_count if views else None,
-                                             "unique": views.view_count_unique if views else None,
-                                             },
-                            "history": [{"timestamp": str(view.timestamp),
-                                         "count": view.view_count if view else None,
-                                         "unique": view.view_count_unique if view else None,
-                                         } for view in history_views] if views else []
-
-                            },
-                  "referrers": [{"source": ref.source,
-                                 "count": ref.count,
-                                 "unique": ref.unique,
-                                 } for ref in RefSources.query.filter_by(repo_name=repo.name).all()],
-                  "paths": [{"path": ref.path,
-                             "title": ref.title,
-                             "count": ref.count,
-                             "unique": ref.unique,
-                             } for ref in RefPaths.query.filter_by(repo_name=repo.name).all()],
-                  "forks": [
-                      {
-                          "url": fork.url
-                      } for fork in Forks.query.filter_by(repo_name=repo.name).all()
-                  ],
-                  "forks_count_total": forks_count  # Add forks count to the response
-                  }
-             }
+            {
+                "repository": repo.name,
+                "traffic": {
+                    "clones": {
+                        "consolidated": {
+                            "count": clones.clone_count if clones else None,
+                            "unique": clones.clone_count_unique if clones else None,
+                        },
+                        "history": [
+                            {
+                                "timestamp": str(clone.timestamp),
+                                "count": clone.clone_count if clone else None,
+                                "unique": clone.clone_count_unique if clone else None,
+                            } for clone in history_clones
+                        ]
+                    },
+                    "views": {
+                        "consolidated": {
+                            "count": views.view_count if views else None,
+                            "unique": views.view_count_unique if views else None,
+                        },
+                        "history": [
+                            {
+                                "timestamp": str(view.timestamp),
+                                "count": view.view_count if view else None,
+                                "unique": view.view_count_unique if view else None,
+                            } for view in history_views
+                        ] if views else []
+                    },
+                    "referrers": [
+                        {
+                            "source": ref.source,
+                            "count": ref.count,
+                            "unique": ref.unique,
+                        } for ref in RefSources.query.filter_by(repo_name=repo.name).all()
+                    ],
+                    "paths": [
+                        {
+                            "path": ref.path,
+                            "title": ref.title,
+                            "count": ref.count,
+                            "unique": ref.unique,
+                        } for ref in RefPaths.query.filter_by(repo_name=repo.name).all()
+                    ],
+                    "forks": [
+                        {
+                            "url": fork.url
+                        } for fork in Forks.query.filter_by(repo_name=repo.name).all()
+                    ],
+                    "forks_count_total": forks_count  # Add forks count to the response
+                }
+            }
         )
 
     ##return json with spaces pretty format
