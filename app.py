@@ -162,22 +162,22 @@ def API():
         data.append(
             {"repository": repo.name,
              "traffic":
-                 {"clones": {"consolidated": {"count": clones.clone_count,
-                                              "unique": clones.clone_count_unique,
+                 {"clones": {"consolidated": {"count": clones.get("clone_count", None),
+                                              "unique": clones.get("clone_count_unique", None),
                                               },
                              "history": [{"timestamp": str(clone.timestamp),
-                                          "count": clone.clone_count,
-                                          "unique": clone.clone_count_unique,
+                                          "count": clone.get("clone_count", None),
+                                          "unique": clone.get("clone_count_unique", None),
                                           } for clone in history_clones]
 
                              },
-                  "views": {"consolidated": {"count": views.view_count,
-                                             "unique": views.view_count_unique
+                  "views": {"consolidated": {"count": views.view_count if views else None,
+                                             "unique": views.view_count_unique if views else None,
                                              },
                             "history": [{"timestamp": str(view.timestamp),
-                                         "count": view.view_count,
-                                         "unique": view.view_count_unique,
-                                         } for view in history_views]
+                                         "count": view.view_count if view else None,
+                                         "unique": view.view_count_unique if view else None,
+                                         } for view in history_views] if views else []
 
                             },
                   "referrers": [{"source": ref.source,
