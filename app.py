@@ -158,6 +158,7 @@ def API():
         history_views = RepoViewsHistory.query.filter_by(repo_name=repo.name).all()
         history_clones = CloneHistory.query.filter_by(repo_name=repo.name).all()
         forks_count = Forks.query.filter_by(repo_name=repo.name).count()
+        print(repo.name)
         data.append(
             {"repository": repo.name,
              "traffic":
