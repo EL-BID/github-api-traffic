@@ -133,10 +133,11 @@ class RefPaths(db.Model):
     def __repr__(self):
         return '<Repo %r>' % self.repo_name
 
+
 class Forks(db.Model):
     __tablename__ = "forks"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    url = db.Column(db.String(200),  unique=True)
+    url = db.Column(db.String(200), unique=True)
     repo_name = db.Column(db.String(200), db.ForeignKey("repos.name"))
 
     def __init__(self, url, repo_name):
@@ -160,16 +161,16 @@ def API():
         data.append(
             {"repository": repo.name,
              "traffic":
-                 {"clones": {"consolidated": {"count": clones.clone_count if clones.clone_count is not None else 0,
-                                              "unique": clones.clone_count_unique if clones.clone_count_unique is not None else 0,
+                 {"clones": {"consolidated": {"count": clones.clone_count,
+                                              "unique": clones.clone_count_unique,
                                               },
                              "history": [{"timestamp": str(clone.timestamp),
-                                          "count": clone.clone_count if clone.clone_count is not None else 0,
-                                          "unique": clone.clone_count_unique if clone.clone_count_unique is not None else 0,
+                                          "count": clone.clone_count,
+                                          "unique": clone.clone_count_unique,
                                           } for clone in history_clones]
 
                              },
-                    "views": {"consolidated": {"count": views.view_count,
+                  "views": {"consolidated": {"count": views.view_count,
                                              "unique": views.view_count_unique
                                              },
                             "history": [{"timestamp": str(view.timestamp),
@@ -178,21 +179,21 @@ def API():
                                          } for view in history_views]
 
                             },
-                "referrers": [{"source": ref.source,
+                  "referrers": [{"source": ref.source,
                                  "count": ref.count,
                                  "unique": ref.unique,
                                  } for ref in RefSources.query.filter_by(repo_name=repo.name).all()],
-                "paths": [{"path": ref.path,
+                  "paths": [{"path": ref.path,
                              "title": ref.title,
                              "count": ref.count,
                              "unique": ref.unique,
                              } for ref in RefPaths.query.filter_by(repo_name=repo.name).all()],
-                "forks": [
-                        {
-                            "url": fork.url
-                        } for fork in Forks.query.filter_by(repo_name=repo.name).all()
-                    ],
-                "forks_count_total": forks_count  # Add forks count to the response
+                  "forks": [
+                      {
+                          "url": fork.url
+                      } for fork in Forks.query.filter_by(repo_name=repo.name).all()
+                  ],
+                  "forks_count_total": forks_count  # Add forks count to the response
                   }
              }
         )
