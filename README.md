@@ -1,3 +1,5 @@
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=EL-BID_github-api-traffic&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=EL-BID_github-api-traffic)
+
 # Repository Traffic Data
 
 This repository contains traffic data for multiple repositories. The data is provided in JSON format, with each repository having its own section. Below is an explanation of each section within the JSON data:
